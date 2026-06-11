@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinguaFlow — Language Translation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161d;
+      --card: #181c26;
+      --border: #252a38;
+      --accent: #6c63ff;
+      --accent-soft: rgba(108, 99, 255, 0.12);
+      --accent-glow: rgba(108, 99, 255, 0.35);
+      --text-primary: #eef0f6;
+      --text-secondary: #7c8499;
+      --text-muted: #4a5168;
+      --success: #34d399;
+      --error: #f87171;
+      --warning: #fbbf24;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 22px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(130deg, #a78bfa, #6c63ff, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      max-width: 1060px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 44px 24px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(130deg, #a78bfa 0%, #6c63ff 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+    }
+
+    /* ── Translator Card ── */
+    .translator {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* ── Language Bar ── */
+    .lang-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .lang-select-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .lang-select-wrap label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 500;
+      padding: 9px 36px 9px 12px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: border-color 0.2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237c8499' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    select:focus { border-color: var(--accent); }
+
+    .swap-btn {
+      margin-top: 20px;
+      width: 38px;
+      height: 38px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s, color 0.2s, transform 0.3s;
+    }
+
+    .swap-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      transform: rotate(180deg);
+    }
+
+    /* ── Text Panels ── */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 280px;
+    }
+
+    .panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      padding: 22px 22px 60px;
+      min-height: 260px;
+      caret-color: var(--accent);
+    }
+
+    textarea::placeholder { color: var(--text-muted); }
+
+    .output-area {
+      flex: 1;
+      padding: 22px 22px 60px;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-primary);
+      min-height: 260px;
+      position: relative;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .output-placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ── Panel Footer ── */
+    .panel-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+    }
+
+    .char-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .char-count.warn { color: var(--warning); }
+    .char-count.over { color: var(--error); }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .icon-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+    .icon-btn svg { flex-shrink: 0; }
+
+    .btn-group { display: flex; gap: 6px; }
+
+    /* ── Translate Button ── */
+    .action-bar {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface);
+    }
+
+    .translate-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 28px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 0 0 0 var(--accent-glow);
+    }
+
+    .translate-btn:hover {
+      background: #7c75ff;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .translate-btn:active { transform: scale(0.98); }
+
+    .translate-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status Message ── */
+    .status {
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .status.error { background: rgba(248, 113, 113, 0.12); color: var(--error); border: 1px solid rgba(248,113,113,0.25); display: block; }
+    .status.success { background: rgba(52, 211, 153, 0.12); color: var(--success); border: 1px solid rgba(52,211,153,0.25); display: block; }
+    .status.info { background: var(--accent-soft); color: #a78bfa; border: 1px solid rgba(108,99,255,0.25); display: block; }
+
+    /* ── TTS Icon ── */
+    .tts-pulse { animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e2130;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      header { padding: 16px 20px; }
+      main { padding: 28px 14px 50px; }
+      .panels { grid-template-columns: 1fr; }
+      .panel:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+      .lang-bar { flex-wrap: wrap; }
+      .swap-btn { margin-top: 0; }
+      .action-bar { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">LinguaFlow</div>
+  <div class="badge">Free · No API Key Needed</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Translate <span>anything,</span><br>instantly.</h1>
+    <p>Powered by MyMemory — 23 languages, zero setup.</p>
+  </div>
+
+  <div class="translator">
+
+    <!-- Language Bar -->
+    <div class="lang-bar">
+      <div class="lang-select-wrap">
+        <label for="sourceLang">From</label>
+        <select id="sourceLang"></select>
+      </div>
+
+      <button class="swap-btn" id="swapBtn" title="Swap languages" aria-label="Swap languages">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
+        </svg>
+      </button>
+
+      <div class="lang-select-wrap">
+        <label for="targetLang">To</label>
+        <select id="targetLang"></select>
+      </div>
+    </div>
+
+    <!-- Text Panels -->
+    <div class="panels">
+      <!-- Input Panel -->
+      <div class="panel">
+        <textarea id="inputText" placeholder="Type or paste text here…" maxlength="5000" spellcheck="true" aria-label="Source text"></textarea>
+        <div class="panel-footer">
+          <span class="char-count" id="charCount">0 / 5000</span>
+          <div class="btn-group">
+            <button class="icon-btn" id="clearBtn" title="Clear text">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Clear
+            </button>
+            <button class="icon-btn" id="ttsSrcBtn" title="Listen to source text">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              Listen
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output Panel -->
+      <div class="panel">
+        <div class="output-area" id="outputArea">
+          <span class="output-placeholder" id="outputPlaceholder">Translation will appear here…</span>
+        </div>
+        <div class="panel-footer">
+          <span style="font-size:0.75rem;color:var(--text-muted)" id="outputMeta"></span>
+          <div class="btn-group">
+            <button class="icon-btn" id="copyBtn" title="Copy translation" disabled>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+            <button class="icon-btn" id="ttsTgtBtn" title="Listen to translation" disabled>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              Listen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div id="statusMsg" class="status"></div>
+      <button class="translate-btn" id="translateBtn">
+        <div class="spinner" id="spinner"></div>
+        <svg id="translateIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>
+        </svg>
+        Translate
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = "http://localhost:5000";
+
+  const sourceLang  = document.getElementById("sourceLang");
+  const targetLang  = document.getElementById("targetLang");
+  const inputText   = document.getElementById("inputText");
+  const outputArea  = document.getElementById("outputArea");
+  const outputPlaceholder = document.getElementById("outputPlaceholder");
+  const charCount   = document.getElementById("charCount");
+  const translateBtn = document.getElementById("translateBtn");
+  const spinner     = document.getElementById("spinner");
+  const translateIcon = document.getElementById("translateIcon");
+  const statusMsg   = document.getElementById("statusMsg");
+  const clearBtn    = document.getElementById("clearBtn");
+  const copyBtn     = document.getElementById("copyBtn");
+  const swapBtn     = document.getElementById("swapBtn");
+  const ttsSrcBtn   = document.getElementById("ttsSrcBtn");
+  const ttsTgtBtn   = document.getElementById("ttsTgtBtn");
+  const outputMeta  = document.getElementById("outputMeta");
+  const toast       = document.getElementById("toast");
+
+  let translatedText = "";
+  let toastTimer = null;
+
+  // ── Language Map ──
+  const LANGUAGES = {
+    "auto": "Auto Detect",
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "ru": "Russian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "zh": "Chinese (Simplified)",
+    "ar": "Arabic",
+    "hi": "Hindi",
+    "nl": "Dutch",
+    "pl": "Polish",
+    "sv": "Swedish",
+    "tr": "Turkish",
+    "vi": "Vietnamese",
+    "th": "Thai",
+    "id": "Indonesian",
+    "uk": "Ukrainian",
+    "bn": "Bengali",
+    "ms": "Malay"
+  };
+
+  // Populate selects
+  function populateSelects(langs) {
+    Object.entries(langs).forEach(([code, name]) => {
+      const opt1 = new Option(name, code);
+      sourceLang.add(opt1);
+      if (code !== "auto") {
+        const opt2 = new Option(name, code);
+        targetLang.add(opt2);
+      }
+    });
+    sourceLang.value = "auto";
+    targetLang.value = "es";
+  }
+
+  // Load languages from backend, fallback to local
+  async function loadLanguages() {
+    try {
+      const res = await fetch(`${API_BASE}/languages`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      populateSelects(data);
+    } catch {
+      populateSelects(LANGUAGES);
+    }
+  }
+
+  loadLanguages();
+
+  // ── Char Counter ──
+  inputText.addEventListener("input", () => {
+    const len = inputText.value.length;
+    charCount.textContent = `${len} / 5000`;
+    charCount.className = "char-count" + (len > 4500 ? " warn" : "") + (len >= 5000 ? " over" : "");
+  });
+
+  // ── Clear ──
+  clearBtn.addEventListener("click", () => {
+    inputText.value = "";
+    charCount.textContent = "0 / 5000";
+    charCount.className = "char-count";
+    resetOutput();
+    hideStatus();
+    inputText.focus();
+  });
+
+  function resetOutput() {
+    translatedText = "";
+    outputArea.innerHTML = '<span class="output-placeholder" id="outputPlaceholder">Translation will appear here…</span>';
+    outputMeta.textContent = "";
+    copyBtn.disabled = true;
+    ttsTgtBtn.disabled = true;
+  }
+
+  // ── Swap ──
+  swapBtn.addEventListener("click", () => {
+    if (sourceLang.value === "auto") return showToast("Can't swap Auto Detect.");
+    const src = sourceLang.value;
+    const tgt = targetLang.value;
+    // Check src is in target options
+    const exists = [...targetLang.options].some(o => o.value === src);
+    if (!exists) return showToast("Language not available in target list.");
+    sourceLang.value = tgt;
+    targetLang.value = src;
+    if (translatedText) {
+      inputText.value = translatedText;
+      inputText.dispatchEvent(new Event("input"));
+      resetOutput();
+    }
+  });
+
+  // ── Translate ──
+  translateBtn.addEventListener("click", doTranslate);
+  inputText.addEventListener("keydown", e => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) doTranslate();
+  });
+
+  async function doTranslate() {
+    const text = inputText.value.trim();
+    if (!text) { showStatus("Please enter some text to translate.", "error"); return; }
+
+    setLoading(true);
+    hideStatus();
+
+    try {
+      const res = await fetch(`${API_BASE}/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          source_lang: sourceLang.value,
+          target_lang: targetLang.value
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showStatus(data.error || "Translation failed. Please try again.", "error");
+      } else {
+        translatedText = data.translated_text;
+        outputArea.textContent = translatedText;
+        copyBtn.disabled = false;
+        ttsTgtBtn.disabled = false;
+        outputMeta.textContent = `${data.char_count} chars`;
+        if (data.detected_lang && data.detected_lang !== sourceLang.value) {
+          showStatus(`Auto-detected language: ${LANGUAGES[data.detected_lang] || data.detected_lang}`, "info");
+        } else {
+          showStatus("Translation complete!", "success");
+          setTimeout(hideStatus, 2500);
+        }
+      }
+    } catch {
+      showStatus("Could not reach the server. Make sure app.py is running on port 5000.", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Copy ──
+  copyBtn.addEventListener("click", () => {
+    if (!translatedText) return;
+    navigator.clipboard.writeText(translatedText).then(() => {
+      showToast("✓ Copied to clipboard");
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement("textarea");
+      ta.value = translatedText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast("✓ Copied to clipboard");
+    });
+  });
+
+  // ── Text-to-Speech ──
+  function speak(text, langCode) {
+    if (!window.speechSynthesis) { showToast("TTS not supported in this browser."); return; }
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    if (langCode && langCode !== "auto") utt.lang = langCode;
+    window.speechSynthesis.speak(utt);
+  }
+
+  ttsSrcBtn.addEventListener("click", () => {
+    const text = inputText.value.trim();
+    if (!text) { showToast("Nothing to speak."); return; }
+    speak(text, sourceLang.value);
+  });
+
+  ttsTgtBtn.addEventListener("click", () => {
+    if (!translatedText) return;
+    speak(translatedText, targetLang.value);
+  });
+
+  // ── Helpers ──
+  function setLoading(on) {
+    translateBtn.disabled = on;
+    spinner.style.display = on ? "block" : "none";
+    translateIcon.style.display = on ? "none" : "block";
+  }
+
+  function showStatus(msg, type) {
+    statusMsg.textContent = msg;
+    statusMsg.className = `status ${type}`;
+  }
+
+  function hideStatus() {
+    statusMsg.className = "status";
+    statusMsg.textContent = "";
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+  }
+</script>
+</body>
+</html>
